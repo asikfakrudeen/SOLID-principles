@@ -1,0 +1,136 @@
+================================================================================
+                        SOLID PRINCIPLES - COMPREHENSIVE STUDY NOTES
+================================================================================
+
+SOLID is an acronym for five object-oriented design principles intended to make
+software designs more understandable, flexible, and maintainable.
+
+--------------------------------------------------------------------------------
+1. SINGLE RESPONSIBILITY PRINCIPLE (SRP)
+--------------------------------------------------------------------------------
+DEFINITION:
+"A class should have one, and only one, reason to change."
+
+EXPLANATION:
+Every class in your software should be focused on a single responsibility or a single
+actor. If a class has multiple responsibilities (for instance: business logic,
+database persistence, report printing, and email notification), any change to database
+schema, email server credentials, or report formatting will force you to modify
+and re-test the exact same class.
+
+USAGE (HOW & WHEN TO APPLY):
+- Apply when a class starts performing tasks belonging to different layers (e.g., UI, DB, domain logic).
+- Separate concerns into distinct classes:
+  * Domain Entity: Holds data & business calculations (e.g., Invoice).
+  * Repository: Handles DB queries/persistence (e.g., InvoiceRepository).
+  * Printer/Formatter: Handles presentation (e.g., InvoicePrinter).
+  * Service/Notifier: Handles communication (e.g., EmailService).
+
+ADVANTAGES:
+1. High Cohesion: Code is focused, clean, and easy to understand.
+2. Low Coupling: Changing one feature (e.g., switching DB from MySQL to PostgreSQL) doesn't touch UI or business logic.
+3. Easy Unit Testing: You can test calculations without needing a live DB or email server.
+4. Fewer Merge Conflicts: Developers working on DB scripts and UI reports modify separate files.
+
+--------------------------------------------------------------------------------
+2. OPEN/CLOSED PRINCIPLE (OCP)
+--------------------------------------------------------------------------------
+DEFINITION:
+"Software entities (classes, modules, functions) should be open for extension,
+but closed for modification."
+
+EXPLANATION:
+You should be able to add new functionality to a system without altering existing,
+already-tested source code. If every new feature requires modifying existing `if-else`
+or `switch` blocks, you risk breaking pre-existing working logic.
+
+USAGE (HOW & WHEN TO APPLY):
+- Apply when you notice `if-else` or `switch` chains checking type codes or customer enums.
+- Use abstraction (interfaces or abstract classes) combined with Polymorphism/Strategy Pattern.
+- Create an interface (e.g., `DiscountStrategy`) and write new implementation classes
+  (e.g., `VIPDiscount`, `FestiveDiscount`, `BlackFridayDiscount`) instead of modifying the calculator class.
+
+ADVANTAGES:
+1. Stability: Existing code remains untouched, preventing accidental regression bugs.
+2. Extensibility: New features are added simply by creating new classes.
+3. Testability: You only need to write unit tests for the new class, not re-test the whole system.
+4. Scalability: Fits enterprise plugin architectures where third parties can extend behavior.
+
+--------------------------------------------------------------------------------
+3. LISKOV SUBSTITUTION PRINCIPLE (LSP)
+--------------------------------------------------------------------------------
+DEFINITION:
+"Subtypes must be substitutable for their base types without altering the correctness
+of the program."
+
+EXPLANATION:
+If class B is a subclass of class A, then objects of type A may be replaced with objects
+of type B without breaking the application or throwing unexpected runtime exceptions.
+A subclass should extend behavior, not violate or remove the promises made by the superclass.
+
+USAGE (HOW & WHEN TO APPLY):
+- Apply when designing class hierarchies. Avoid inheriting just to reuse code if the subclass cannot fulfill all base methods.
+- Classic Pitfall: `Ostrich` inheriting from `Bird` with a `fly()` method, where `Ostrich` throws `UnsupportedOperationException`.
+- Solution: Extract common traits into base abstractions (`Bird` has `eat()` and `walk()`), and create specialized interfaces for extra capabilities (`Flyable` with `fly()`).
+
+ADVANTAGES:
+1. Predictable Polymorphism: Callers can safely use superclasses without checking `instanceof` or catching surprises.
+2. Code Reliability: Prevents runtime crashes caused by unexpected exception throwing in subclasses.
+3. High Reusability: Generic code written for base types works flawlessly with any present or future subclass.
+
+--------------------------------------------------------------------------------
+4. INTERFACE SEGREGATION PRINCIPLE (ISP)
+--------------------------------------------------------------------------------
+DEFINITION:
+"Clients should not be forced to depend upon interfaces that they do not use."
+
+EXPLANATION:
+Avoid creating large, bloated ("fat") interfaces that attempt to handle everything.
+If an interface contains 10 methods, but a basic implementing class only needs 2 of them,
+that class is forced to write empty dummy methods or throw exceptions for the remaining 8.
+
+USAGE (HOW & WHEN TO APPLY):
+- Apply whenever an interface has unrelated methods serving different types of clients.
+- Break large interfaces into small, role-specific, focused interfaces.
+  * Instead of `MultiFunctionDevice` (print, scan, fax, staple), create:
+    `Printer`, `Scanner`, `FaxMachine`.
+- A simple printer implements only `Printer`. An advanced workstation implements all three.
+
+ADVANTAGES:
+1. Decoupled Design: Classes only know about methods relevant to them.
+2. Avoids Dummy Code: No empty method stubs or `UnsupportedOperationException` needed.
+3. Faster Builds & Maintenance: Modifying a `FaxMachine` interface will not force recompilation of pure `Printer` clients.
+
+--------------------------------------------------------------------------------
+5. DEPENDENCY INVERSION PRINCIPLE (DIP)
+--------------------------------------------------------------------------------
+DEFINITION:
+1. "High-level modules should not depend on low-level modules. Both should depend on abstractions."
+2. "Abstractions should not depend on details. Details should depend on abstractions."
+
+EXPLANATION:
+High-level business logic (e.g., `OrderProcessor` or `NotificationService`) should not directly
+instantiate concrete low-level implementation details (e.g., `new MySQLDatabase()` or `new EmailSender()`).
+Instead, both should depend on an interface contract (e.g., `DatabaseRepository` or `MessageService`).
+Concrete details are "injected" from the outside (Dependency Injection).
+
+USAGE (HOW & WHEN TO APPLY):
+- Apply whenever a class uses `new ConcreteLowLevelClass()` inside its constructor.
+- Replace direct instantiation with Constructor Injection or Dependency Injection frameworks (like Spring Framework).
+- Pass an interface dependency (e.g., `public NotificationService(MessageService service)`).
+- Now you can pass `EmailService`, `SMSService`, `PushNotificationService`, or `MockService` seamlessly.
+
+ADVANTAGES:
+1. Loose Coupling: High-level business logic is completely isolated from low-level infrastructure details.
+2. Unit Testability: Easily substitute real network/DB calls with Mock/Stub objects in unit tests.
+3. Flexibility: Swap databases (e.g., Postgres to Mongo) or third-party APIs without modifying core business rules.
+
+================================================================================
+SUMMARY MEMORY TRICK (THE SOLID FORMULA)
+================================================================================
+S -> Single Responsibility : One Class, One Reason to Change.
+O -> Open/Closed           : Open for Extension, Closed for Modification.
+L -> Liskov Substitution   : Subclasses Must Honor Superclass Contracts.
+I -> Interface Segregation : Small, Focused Interfaces Over Fat Ones.
+D -> Dependency Inversion  : Depend on Interfaces (Abstractions), Not Concretions.
+================================================================================
